@@ -1,0 +1,14 @@
+Usage: jamendo.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  --json=JSON_FILENAME  The JSON file used to store the cached Jamendo DB
+  --xml=XML_FILENAME    The XML file downloaded from Jamendo
+  --any                 Allow the playlist to contain tracks with any of the
+                        tags (all by default)
+  -t TAGS, --tag=TAGS   Tracks in the playlist must have this tag (you can add
+                        many -t options)
+  -o OUTPUT_FILENAME, --output=OUTPUT_FILENAME
+                        Playlist file to create
+  -j, --makejson        Generate the JSON file from the XML file
+  -l, --list-tags       List existing tags
