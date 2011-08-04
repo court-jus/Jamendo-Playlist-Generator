@@ -1,0 +1,4 @@
+#!/bin/bash
+
+wget -c "http://img.jamendo.com/data/dbdump_artistalbumtrack.xml.gz"
+gzip -d "$ZFILEC"
