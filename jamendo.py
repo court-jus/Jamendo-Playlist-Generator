@@ -71,12 +71,20 @@ class Analyser(object):
                 self.data = json.load(fp)
         return self.data
 
-    def findtracks(self, tags = [], cumulative_tags = True):
+    def findtracks(self, album = None, tags = [], cumulative_tags = True):
         data = self.loadjson()
-        if cumulative_tags:
-            return intersection([data[tag] for tag in tags])
-        else:
-            return union([data[tag] for tag in tags])
+        if tags:
+            if cumulative_tags:
+                return intersection([data[tag] for tag in tags])
+            else:
+                return union([data[tag] for tag in tags])
+        elif album:
+            tracks = []
+            for tag, tagtracks in data.iteritems():
+                for track in tagtracks:
+                    if track[1] == album and track[2] not in [t[2] for t in tracks]:
+                        tracks.append(track)
+            return tracks
 
     def makeplaylist(self, itemlist):
         MP3STREAM = "http://api.jamendo.com/get2/stream/track/redirect/?id=%s&streamencoding=mp31"
@@ -95,6 +103,7 @@ if __name__ == "__main__":
     parser.add_option("-o", "--output", dest="output_filename", help="Playlist file to create")
     parser.add_option("-j", "--makejson", action="store_true",dest="makejson", default=False,help="Generate the JSON file from the XML file")
     parser.add_option("-l", "--list-tags", action="store_true",dest="list_tags", default=False,help="List existing tags")
+    parser.add_option("-a", "--album", dest="album", help="Album ID to create playlist from")
     options, args = parser.parse_args()
     tags = options.tags
     if options.makejson or not os.path.exists(options.json_filename):
@@ -114,6 +123,14 @@ if __name__ == "__main__":
         if not playlist_filename:
             playlist_filename = "%s.m3u" % ("_".join(tags),)
         tracks = jamendo.findtracks(tags = tags, cumulative_tags = options.cumulative_tags)
+        with open(playlist_filename, "wb") as fp:
+            fp.write(jamendo.makeplaylist(tracks))
+            fp.write("\n")
+        print "Playlist wrote to %s (%s tracks)" % (playlist_filename, len(tracks))
+    if options.album:
+        if not playlist_filename:
+            playlist_filename = "album_%s.m3u" % (options.album,)
+        tracks = jamendo.findtracks(album = options.album)
         with open(playlist_filename, "wb") as fp:
             fp.write(jamendo.makeplaylist(tracks))
             fp.write("\n")
